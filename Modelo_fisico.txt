@@ -1,0 +1,176 @@
+-- =========================
+-- CRIAÇÃO DE TABELAS
+-- =========================
+
+/*
+CREATE TABLE funcionarios (
+    cpf_funcionario VARCHAR(11) PRIMARY KEY UNIQUE,
+    nome VARCHAR(60) NOT NULL
+);
+
+CREATE TABLE categoria (
+    cod_categoria SERIAL PRIMARY KEY,
+    nome_categoria VARCHAR(30),
+    descricao_categoria VARCHAR(60)
+);
+
+CREATE TABLE produto (
+    cod_produto SERIAL PRIMARY KEY,
+    nome_produto VARCHAR(60) NOT NULL,
+    descricao VARCHAR(255),
+    quantidade_estoque SMALLINT CHECK (quantidade_estoque > 0) DEFAULT 0,
+    data_fabricacao DATE,
+    valor_unitario NUMERIC,
+	cod_categoria INT,
+    FOREIGN KEY (cod_categoria) REFERENCES categoria (cod_categoria)
+);
+
+CREATE TABLE cliente (
+    cod_cliente SERIAL PRIMARY KEY,
+    nome_completo VARCHAR(60) NOT NULL,
+    nome_usuario VARCHAR(30),
+    email VARCHAR(60) NOT NULL,
+    cpf VARCHAR(11) NOT NULL UNIQUE,
+    data_nascimento DATE
+);
+CREATE TABLE pedido (
+    cod_pedido SERIAL PRIMARY KEY,
+    data_criacao DATE,
+	cod_cliente INT,
+    FOREIGN KEY (cod_cliente) REFERENCES cliente (cod_cliente)
+);
+
+CREATE TABLE possui (
+	cod_pedido INT,
+	cod_produto INT,
+	CONSTRAINT pk_possui PRIMARY KEY (cod_pedido, cod_produto),
+	FOREIGN KEY (cod_pedido) REFERENCES pedido (cod_pedido),
+	FOREIGN KEY (cod_produto) REFERENCES produto (cod_produto)
+);
+
+CREATE TABLE cadastra (
+	cpf_funcionario VARCHAR,
+	cod_produto SERIAL,
+	CONSTRAINT pk_cadastra PRIMARY KEY (cpf_funcionario, cod_produto),
+	FOREIGN KEY (cpf_funcionario) REFERENCES funcionarios (cpf_funcionario),
+	FOREIGN KEY (cod_produto) REFERENCES produto (cod_produto)
+);
+
+CREATE TABLE endereco (
+    cod_endereco serial PRIMARY KEY,
+    rua VARCHAR(60) NOT NULL,
+    cep SMALLINT NOT NULL,
+    bairro VARCHAR(60) NOT NULL,
+	cod_cliente SERIAL,
+    FOREIGN KEY (cod_cliente) REFERENCES cliente (cod_cliente)
+);
+
+-- =========================
+-- FIM DA CRIAÇÃO DE TABELAS
+-- =========================
+
+
+-- =========================
+--INSERÇÃO DE DADOS DAS TABELA
+-- =========================
+
+
+INSERT INTO categoria(nome_categoria, descricao_categoria) VALUES ('Smartphones','Aparelhos celulares'),
+																	('Desktop','Computadores de mesa'),
+																	('Laptops','Computadores Portatils'),
+																	('Acessorios','Fones, teclados, mouses etc'),
+																	('Moveis','Cdeiras, camas, armarios etc'),
+																	('Hardwares','Processadores, Placa mae, GPU etc')
+
+INSERT INTO cliente(nome_completo, nome_usuario, email, cpf, data_nascimento)
+VALUES ('João Silva', 'joaosilva', 'joaosilva@gmail.com', '12345678901', '1990-05-20'),
+('Ana Souza', 'anasouza', 'anasouza@gmail.com', '98765432101', '1995-12-01'),
+('Pedro Santos', 'pedrosantos', 'pedrosantos@hotmail.com', '24681012141', '1985-03-15'),
+('Maria Oliveira', 'mariaoliveira', 'mariaoliveira@gmail.com', '11122233344', '2000-09-10'),
+('Lucas Lima', 'lucaslima', 'lucaslima@yahoo.com.br', '55544433322', '1988-11-25');
+
+INSERT INTO endereco(rua, cep, bairro) 
+VALUES 
+    ('Rua das Flores', 1234, 'Jardim Botânico'),
+    ('Rua das Palmeiras', 6780, 'Centro'),
+    ('Avenida das Águias', 5421, 'Jardim Aeroporto'),
+    ('Rua dos Girassóis', 9875, 'Vila Mariana'),
+    ('Avenida das Rosas', 1359, 'Vila Nova');
+
+INSERT INTO funcionarios(cpf_funcionario, nome) VALUES ('12345678901', 'Maria Silva'),
+														('98765432109', 'João Santos'),
+														('45678912304', 'Carlos Oliveira'),
+														('65432198706', 'Juliana Pereira'),
+
+INSERT INTO produto(nome_produto, descricao, quantidade_estoque, data_fabricacao, valor_unitario, cod_categoria)VALUES
+('Samsung Galaxy S21', 'Smartphone top de linha da Samsung', 50, '2021-01-15', 4599.99, 1),
+('Dell Inspiron Desktop', 'Computador de mesa para uso geral', 20, '2022-02-28', 3699.99, 2),
+('MacBook Air', 'Notebook da Apple com excelente desempenho', 30, '2022-01-05', 8999.99, 3),
+('Fone de ouvido Bluetooth', 'Fone de ouvido sem fio com cancelamento de ruído', 100, '2021-11-22', 499.99, 4),
+('Cadeira Gamer', 'Cadeira ergonômica para jogos', 10, '2022-03-15', 899.99, 5),
+('Processador Intel Core i9', 'Processador de última geração da Intel', 5, '2022-02-01', 3199.99, 6);													('78945612302', 'Pedro Souza');
+
+INSERT INTO pedido(data_criacao, cod_cliente) VALUES 
+('2023-04-23', 1),
+('2023-04-22', 2),
+('2023-04-22', 3),
+('2023-04-21', 4),
+('2023-04-20', 5);
+
+
+-- ==================================
+--FIM DA INSERÇÃO DE DADOS DAS TABELA
+-- ==================================
+*/
+
+-- =======================================
+--ATUALIZAÇÃO DE UM REGISTRO EM UMA TABELA
+-- =======================================
+
+-- UPDATE cliente SET nome_completo = 'João da Silva' WHERE nome_completo = 'João Silva';
+
+
+-- =====================================
+--EXCLUSÃO DE UM REGISTRO EM UMA TABELA
+-- =====================================
+-- DELETE FROM funcionarios WHERE nome = 'João Santos';
+
+
+
+-- ====================
+--CONSULTAS NAS TABELAS
+-- ====================
+
+
+-- LIVRE
+-- SELECT * FROM funcionarios;
+
+-- GROUP BY
+-- SELECT * FROM produto ORDER BY valor_unitario DESC;
+/*
+-- COUNT
+SELECT c.nome_categoria, COUNT(*) AS quantidade_produtos
+FROM produto prod
+JOIN categoria c ON prod.cod_categoria = c.cod_categoria
+GROUP BY c.nome_categoria;
+*/
+
+/*
+-- CONTRUÇÃO NOTA FISCAL
+SELECT c.nome_completo, c.email, ped.data_criacao, SUM(prod.valor_unitario) AS total
+FROM cliente c
+JOIN pedido ped ON c.cod_cliente = ped.cod_cliente
+JOIN possui po ON ped.cod_pedido = po.cod_pedido
+JOIN produto prod ON po.cod_produto = prod.cod_produto
+WHERE ped.cod_pedido = 1
+GROUP BY c.nome_completo, c.email, ped.data_criacao;
+*/
+
+/*
+-- JUNÇÃO
+SELECT p.cod_pedido, prod.nome_produto, cli.nome_completo, cli.email
+FROM pedido p
+JOIN possui po ON p.cod_pedido = po.cod_pedido
+JOIN produto prod ON po.cod_produto = prod.cod_produto
+JOIN cliente cli ON p.cod_cliente = cli.cod_cliente;
+*/
